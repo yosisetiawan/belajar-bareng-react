@@ -1,4 +1,37 @@
 import { useState } from "react";
+import TaskList from "./components/TaskList";
+
+
+/**
+ * App Component
+ * 
+ * Komponen utama yang mengelola aplikasi todo list
+ * 
+ * State:
+ * - todos: Array yang menyimpan daftar tugas
+ *   Setiap tugas memiliki properti:
+ *   - title: String (judul/nama tugas)
+ *   - isCompleted: Boolean (status penyelesaian)
+ * 
+ * - textInput: String yang menyimpan input teks dari user
+ * 
+ * Fungsi:
+ * - addNewTodos(): Menambahkan tugas baru ke daftar todos
+ *   Membuat objek tugas baru dan menambahkannya ke state todos
+ * 
+ * - onCompletedTask(): Mengubah status penyelesaian tugas
+ *   Dipanggil saat checkbox di-klik untuk menandai tugas selesai
+ * 
+ * Fitur:
+ * - Input teks untuk menambah tugas baru
+ * - Tombol untuk menambahkan tugas
+ * - Daftar tugas dalam bentuk list
+ * - Checkbox untuk menandai tugas selesai
+ * - Indikator visual untuk tugas yang sudah selesai
+ * 
+ * @component
+ * @returns {JSX.Element} Komponen App yang merender seluruh aplikasi todo list
+ */
 
 function App() {
   /**
@@ -18,19 +51,26 @@ function App() {
   const [textInput, setTextInput] = useState("");
 
   /**
-   * Fungsi ini bertujuan untuk menambahkan tugas baru ke dalam daftar todos
-   * Fungsi ini akan dijalankan ketika tombol "Tambahkan" diklik
+   * Fungsi untuk menambah tugas baru ke daftar todos
+   * Fungsi ini akan berjalan saat tombol "Tambahkan" diklik
+   * 
+   * Cara kerjanya:
+   * 1. Membuat objek tugas baru dengan judul dari input user
+   * 2. Menambahkan objek tugas tersebut ke daftar todos yang sudah ada
    */
   function addNewTodos() {
     /**
-     * Langkah 1: Membuat objek todoItem yang akan menyimpan informasi tugas baru
-     * - Properti title akan diisi dengan nilai dari state textInput (input pengguna)
-     * - Properti isCompleted diset false karena tugas baru belum selesai
-     *
-     * Mengapa menggunakan state?
-     * - State textInput menyimpan input pengguna yang bisa berubah-ubah
-     * - Setiap perubahan input akan otomatis tersimpan di state textInput
-     * - Saat tombol "Tambah" diklik, nilai terakhir dari textInput digunakan
+     * Langkah 1: Membuat objek untuk menyimpan tugas baru
+     * 
+     * Penjelasan:
+     * - Kita buat objek bernama todoItem
+     * - title: Mengambil teks yang diketik user dari state textInput 
+     * - isCompleted: Diberi nilai false karena tugas baru belum selesai
+     * 
+     * Catatan:
+     * - textInput adalah state yang menyimpan teks dari kotak input
+     * - State adalah tempat menyimpan data yang bisa berubah di React
+     * - Setiap user mengetik, nilai textInput akan berubah otomatis
      */
     const todoItem = {
       title: textInput,
@@ -38,15 +78,19 @@ function App() {
     };
 
     /**
-     * Langkah 2: Menambahkan tugas baru ke dalam state todos
-     *
-     * Mengapa menggunakan setTodos dengan callback?
-     * - setTodos adalah fungsi khusus dari useState untuk mengubah state todos
-     * - Callback (previousTodos) => [...] memastikan kita menggunakan data terbaru
+     * Langkah 2: Memasukkan tugas baru ke daftar todos
+     * 
+     * Penjelasan:
+     * - setTodos adalah fungsi untuk mengubah isi state todos
+     * - previousTodos berisi daftar tugas yang sudah ada sebelumnya
      * - [...previousTodos, todoItem] artinya:
-     *   1. Salin semua tugas yang sudah ada (...previousTodos)
-     *   2. Tambahkan todoItem baru di akhir array
-     * - Setelah setTodos dijalankan, React akan otomatis memperbarui tampilan
+     *   > Salin semua tugas lama (...previousTodos)
+     *   > Tambahkan tugas baru (todoItem) di akhir
+     * 
+     * Catatan:
+     * - Kita pakai setTodos agar React tahu kalau data berubah
+     * - Setelah data berubah, tampilan akan diperbarui otomatis
+     * - Tanda ... (spread operator) digunakan untuk menyalin array
      */
     setTodos((previousTodos) => [...previousTodos, todoItem]);
   }
@@ -63,29 +107,39 @@ function App() {
    * 4. useState akan memicu React untuk memperbarui tampilan secara otomatis
    */
   function onCompletedTask(isChecked, todoItem) {
-    // Mencari index tugas yang akan diubah statusnya
+    // Langkah 1: Mencari posisi tugas yang akan diubah dalam array todos
+    // - Menggunakan method findIndex untuk mencari index/posisi tugas
+    // - Mencari berdasarkan title yang sama dengan tugas yang diklik
+    // - Hasilnya disimpan dalam variabel selectedIndex
     const selectedIndex = todos.findIndex(
       (item) => item.title === todoItem.title
     );
 
-    // Jika tugas ditemukan (index tidak -1)
+    // Langkah 2: Memeriksa apakah tugas ditemukan
+    // - Jika selectedIndex = -1, artinya tugas tidak ditemukan
+    // - Kode dalam if hanya dijalankan jika tugas ditemukan
     if (selectedIndex !== -1) {
-      // Menggunakan setTodos untuk mengubah status isCompleted
-      // Menggunakan setTodos untuk mengubah state todos
-      // Kenapa kita menggunakan setTodos dengan callback?
-      // 1. setTodos adalah fungsi dari useState untuk mengubah data todos
-      // 2. Callback (previousTodos) memastikan kita mendapat data todos yang terbaru
-      // 3. Ini penting agar tidak ada data yang hilang atau tertimpa
-
-      // Bagaimana cara kerjanya?
-      // 1. [...previousTodos] - membuat salinan array todos yang ada
-      // 2. updatedTodos[selectedIndex] - mengakses tugas yang ingin diubah
-      // 3. isCompleted = isChecked - mengubah status selesai sesuai checkbox
-      // 4. return updatedTodos - menyimpan perubahan ke dalam state
-
-      // Mengapa harus membuat salinan array?
-      // - React membutuhkan object/array baru untuk mendeteksi perubahan
-      // - Mengubah array langsung tidak akan memicu pembaruan tampilan
+      // Langkah 3: Mengubah status tugas menggunakan setTodos
+      // 
+      // Penjelasan penggunaan setTodos dengan callback:
+      // - setTodos adalah fungsi untuk mengubah state todos
+      // - Callback (previousTodos) => {...} digunakan agar kita mendapat data todos terbaru
+      // - Ini mencegah data todos yang lama tertimpa
+      //
+      // Cara kerja kode di bawah:
+      // 1. [...previousTodos] = membuat salinan dari array todos
+      //    - Kita tidak boleh mengubah array todos secara langsung
+      //    - React perlu array baru untuk mendeteksi perubahan
+      //
+      // 2. updatedTodos[selectedIndex] = mengakses tugas yang akan diubah
+      //    - selectedIndex adalah posisi tugas dalam array
+      //
+      // 3. isCompleted = isChecked = mengubah status selesai/belum
+      //    - isChecked adalah status checkbox (true/false)
+      //    - Jika checkbox dicentang, status berubah jadi selesai
+      //
+      // 4. return updatedTodos = menyimpan perubahan ke state
+      //    - React akan memperbarui tampilan secara otomatis
       setTodos((previousTodos) => {
         const updatedTodos = [...previousTodos];
         updatedTodos[selectedIndex].isCompleted = isChecked;
@@ -113,90 +167,26 @@ function App() {
         />
         <button onClick={addNewTodos}>Tambahkan</button>
       </div>
-      {/* Menampilkan daftar tugas yang sudah dimasukkan oleh pengguna dalam bentuk list */}
-      <ol>
-        {/* 
-          Melakukan perulangan pada array todos menggunakan method map()
-          untuk menampilkan setiap tugas yang sudah dimasukkan
-        */}
-        {todos.map((item) => (
-          /**
-           * Menampilkan setiap tugas dalam bentuk list item (<li>)
-           * Data tugas memiliki 2 properti:
-           * - title: teks tugas yang dimasukkan (string)
-           * - isCompleted: status penyelesaian tugas (boolean)
-           *
-           * key={item.title} digunakan sebagai identifier unik yang diperlukan React
-           * untuk melakukan render list dengan efisien
-           */
-          /* 
-            Menampilkan setiap tugas dalam bentuk list item (<li>)
-            - key={item.title} adalah identifier unik yang diperlukan React untuk melakukan render list dengan efisien
-            - input type="checkbox" digunakan untuk menandai status tugas (selesai/belum)
-            - value={item.isCompleted} menggunakan state untuk menyimpan status checkbox
-              Mengapa menggunakan state?
-              1. State memungkinkan React melacak perubahan data
-              2. Ketika checkbox dicentang, state akan berubah
-              3. React akan otomatis memperbarui tampilan sesuai perubahan state
-            - {item.title} menampilkan teks tugas yang diinput pengguna
-          */
-          <li key={item.title}>
-            {/* 
-              Menggunakan useState untuk mengelola status checkbox:
-              1. useState memungkinkan kita menyimpan dan mengubah data yang bisa berubah
-              2. Ketika checkbox dicentang, nilai akan berubah dari false ke true atau sebaliknya
-              3. Perubahan status ini akan disimpan dalam state menggunakan useState
-              4. React akan otomatis memperbarui tampilan ketika state berubah
-              5. Fungsi onCompletedTask akan dipanggil setiap kali checkbox berubah
-              6. event.target.checked mengambil nilai true/false dari checkbox
-            */}
-            {/* 
-              Kode di bawah menggunakan operator ternary (?) untuk menampilkan:
-              - Emoji centang (✅) jika tugas sudah selesai (item.isCompleted = true)
-              - Checkbox jika tugas belum selesai (item.isCompleted = false)
-            */}
-            {
-              item.isCompleted ? (
-                <>✅&nbsp;</> // Menampilkan emoji centang dan spasi jika tugas selesai
-              ) : (
-                <input
-                  type="checkbox"
-                  value={item.isCompleted}
-                  onChange={(event) => {
-                    /* 
-                      Fungsi ini akan dijalankan ketika checkbox diklik:
-                      1. event.target.checked berisi status checkbox (dicentang/tidak)
-                      2. Nilai checked akan dikirim ke fungsi onCompletedTask
-                      3. onCompletedTask akan mengubah status tugas (selesai/belum)
-                      4. React akan otomatis memperbarui tampilan sesuai status baru
-                      5. Jika dicentang, checkbox akan berubah menjadi emoji centang
-                    */
-                    onCompletedTask(event.target.checked, item);
-                  }}
-                />
-              )
-            }
-            
-
-            {/* 
-              Menampilkan judul tugas:
-              1. {item.title} akan menampilkan teks tugas yang diinput pengguna
-              2. Tanda kurung kurawal {} digunakan untuk menampilkan nilai dari variabel/properti dalam JSX
-            */}
-            {item.title}
-
-            {/* 
-              Menampilkan status tugas selesai:
-              1. Menggunakan operator && (AND) untuk conditional rendering
-              2. Jika item.isCompleted bernilai true, maka teks "(Tugas Sudah Selesai)" akan ditampilkan
-              3. Jika false, tidak akan menampilkan apapun
-              4. Tag <strong> membuat teks menjadi tebal
-              5. &nbsp; digunakan untuk menambah spasi sebelum teks
-            */}
-            {item.isCompleted && <strong>&nbsp;(Tugas Sudah Selesai)</strong>}
-          </li>
-        ))}
-      </ol>
+      {/* 
+        Menampilkan daftar tugas menggunakan komponen TaskList:
+        
+        - todos={todos}
+          Mengirim data tugas dari state todos ke komponen TaskList
+          Data ini berisi array/kumpulan tugas yang akan ditampilkan
+        
+        - onCompletedTask={onCompletedTask} 
+          Mengirim fungsi untuk menandai tugas selesai/belum
+          Fungsi ini akan dipanggil saat checkbox di TaskList diklik
+          
+        Catatan:
+        - Komponen TaskList akan menerima props todos dan onCompletedTask
+        - Props adalah cara React mengirim data dari komponen induk ke anak
+        - Data yang dikirim bisa diakses di komponen TaskList
+      */}
+      <TaskList
+        todos={todos}
+        onCompletedTask={onCompletedTask}
+      />
     </div>
   );
 }

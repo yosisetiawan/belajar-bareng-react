@@ -26,7 +26,7 @@ function App() {
      * Langkah 1: Membuat objek todoItem yang akan menyimpan informasi tugas baru
      * - Properti title akan diisi dengan nilai dari state textInput (input pengguna)
      * - Properti isCompleted diset false karena tugas baru belum selesai
-     * 
+     *
      * Mengapa menggunakan state?
      * - State textInput menyimpan input pengguna yang bisa berubah-ubah
      * - Setiap perubahan input akan otomatis tersimpan di state textInput
@@ -39,7 +39,7 @@ function App() {
 
     /**
      * Langkah 2: Menambahkan tugas baru ke dalam state todos
-     * 
+     *
      * Mengapa menggunakan setTodos dengan callback?
      * - setTodos adalah fungsi khusus dari useState untuk mengubah state todos
      * - Callback (previousTodos) => [...] memastikan kita menggunakan data terbaru
@@ -55,36 +55,38 @@ function App() {
    * Fungsi ini bertujuan untuk menandai tugas yang sudah selesai
    * @param {boolean} isChecked - Status checkbox (dicentang/tidak)
    * @param {object} todoItem - Objek tugas yang akan diubah statusnya
-   * 
+   *
    * Mengapa menggunakan useState untuk menyimpan status tugas?
    * 1. useState memungkinkan kita menyimpan data yang bisa berubah
    * 2. Ketika checkbox dicentang, kita perlu mengubah status isCompleted
    * 3. Perubahan status ini perlu disimpan agar tidak hilang saat halaman di-refresh
    * 4. useState akan memicu React untuk memperbarui tampilan secara otomatis
    */
-  function onCompletedTask(isChecked, todoItem){
+  function onCompletedTask(isChecked, todoItem) {
     // Mencari index tugas yang akan diubah statusnya
-    const selectedIndex = todos.findIndex((item) => item.title === todoItem.title)
+    const selectedIndex = todos.findIndex(
+      (item) => item.title === todoItem.title
+    );
 
     // Jika tugas ditemukan (index tidak -1)
-    if(selectedIndex !== -1){
+    if (selectedIndex !== -1) {
       // Menggunakan setTodos untuk mengubah status isCompleted
       // Menggunakan setTodos untuk mengubah state todos
       // Kenapa kita menggunakan setTodos dengan callback?
       // 1. setTodos adalah fungsi dari useState untuk mengubah data todos
       // 2. Callback (previousTodos) memastikan kita mendapat data todos yang terbaru
       // 3. Ini penting agar tidak ada data yang hilang atau tertimpa
-      
+
       // Bagaimana cara kerjanya?
       // 1. [...previousTodos] - membuat salinan array todos yang ada
       // 2. updatedTodos[selectedIndex] - mengakses tugas yang ingin diubah
       // 3. isCompleted = isChecked - mengubah status selesai sesuai checkbox
       // 4. return updatedTodos - menyimpan perubahan ke dalam state
-      
+
       // Mengapa harus membuat salinan array?
       // - React membutuhkan object/array baru untuk mendeteksi perubahan
       // - Mengubah array langsung tidak akan memicu pembaruan tampilan
-      setTodos(previousTodos => {
+      setTodos((previousTodos) => {
         const updatedTodos = [...previousTodos];
         updatedTodos[selectedIndex].isCompleted = isChecked;
         return updatedTodos;
@@ -123,7 +125,7 @@ function App() {
            * Data tugas memiliki 2 properti:
            * - title: teks tugas yang dimasukkan (string)
            * - isCompleted: status penyelesaian tugas (boolean)
-           * 
+           *
            * key={item.title} digunakan sebagai identifier unik yang diperlukan React
            * untuk melakukan render list dengan efisien
            */
@@ -148,17 +150,51 @@ function App() {
               5. Fungsi onCompletedTask akan dipanggil setiap kali checkbox berubah
               6. event.target.checked mengambil nilai true/false dari checkbox
             */}
-            <input type="checkbox" value={item.isCompleted} onChange={(event) => {
-              // Menggunakan useState untuk mengelola status checkbox:
-              // 1. useState adalah fitur React yang memungkinkan kita menyimpan data yang bisa berubah (state)
-              // 2. Ketika checkbox dicentang, kita perlu menyimpan perubahan status tersebut
-              // 3. Dengan useState, React akan otomatis memperbarui tampilan saat data berubah
-              // 4. event.target.checked mengambil nilai true/false dari checkbox yang dicentang
-              // 5. item adalah data tugas yang statusnya ingin diubah
-              // 6. onCompletedTask akan mengupdate state dengan status baru dari checkbox
-              onCompletedTask(event.target.checked, item)
-            }} />
-            {item.title}</li>
+            {/* 
+              Kode di bawah menggunakan operator ternary (?) untuk menampilkan:
+              - Emoji centang (✅) jika tugas sudah selesai (item.isCompleted = true)
+              - Checkbox jika tugas belum selesai (item.isCompleted = false)
+            */}
+            {
+              item.isCompleted ? (
+                <>✅&nbsp;</> // Menampilkan emoji centang dan spasi jika tugas selesai
+              ) : (
+                <input
+                  type="checkbox"
+                  value={item.isCompleted}
+                  onChange={(event) => {
+                    /* 
+                      Fungsi ini akan dijalankan ketika checkbox diklik:
+                      1. event.target.checked berisi status checkbox (dicentang/tidak)
+                      2. Nilai checked akan dikirim ke fungsi onCompletedTask
+                      3. onCompletedTask akan mengubah status tugas (selesai/belum)
+                      4. React akan otomatis memperbarui tampilan sesuai status baru
+                      5. Jika dicentang, checkbox akan berubah menjadi emoji centang
+                    */
+                    onCompletedTask(event.target.checked, item);
+                  }}
+                />
+              )
+            }
+            
+
+            {/* 
+              Menampilkan judul tugas:
+              1. {item.title} akan menampilkan teks tugas yang diinput pengguna
+              2. Tanda kurung kurawal {} digunakan untuk menampilkan nilai dari variabel/properti dalam JSX
+            */}
+            {item.title}
+
+            {/* 
+              Menampilkan status tugas selesai:
+              1. Menggunakan operator && (AND) untuk conditional rendering
+              2. Jika item.isCompleted bernilai true, maka teks "(Tugas Sudah Selesai)" akan ditampilkan
+              3. Jika false, tidak akan menampilkan apapun
+              4. Tag <strong> membuat teks menjadi tebal
+              5. &nbsp; digunakan untuk menambah spasi sebelum teks
+            */}
+            {item.isCompleted && <strong>&nbsp;(Tugas Sudah Selesai)</strong>}
+          </li>
         ))}
       </ol>
     </div>
